@@ -19,15 +19,15 @@ export default function GlassNav() {
   };
 
   return (
-    <div className="fixed md:absolute bottom-6 left-6 right-6 h-[72px] glass-nav rounded-full px-8 z-50 flex justify-between items-center">
+    <div className="fixed md:absolute bottom-4 left-1/2 -translate-x-1/2 h-[50px] glass-nav rounded-full z-50 flex items-center gap-6 px-8 w-max">
       {navItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-0.5"
         >
           <i
-            className={`${item.icon} text-3xl transition-all duration-200 ${
+            className={`${item.icon} text-2xl transition-all duration-200 ${
               isActive(item.href)
                 ? "text-brand-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"
                 : "text-brand-white/40 hover:text-brand-white"
