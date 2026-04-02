@@ -19,7 +19,7 @@ export default function GlassNav() {
   };
 
   return (
-    <div className="absolute bottom-6 left-6 right-6 h-[72px] glass-nav rounded-full px-8 z-50 flex justify-between items-center">
+    <div className="fixed md:absolute bottom-6 left-6 right-6 h-[72px] glass-nav rounded-full px-8 z-50 flex justify-between items-center">
       {navItems.map((item) => (
         <Link
           key={item.href}

@@ -2,7 +2,7 @@
 
 export default function StatusBar() {
   return (
-    <div className="fixed top-0 left-0 right-0 h-12 bg-brand-black z-50 flex items-center justify-between px-8 text-sm font-semibold">
+    <div className="hidden md:flex fixed top-0 left-0 right-0 h-12 bg-brand-black z-50 items-center justify-between px-8 text-sm font-semibold">
       <span>9:41</span>
       <div className="flex items-center gap-1.5">
         {/* Signal */}

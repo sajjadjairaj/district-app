@@ -69,7 +69,7 @@ export default function ExperienceDetail() {
           {/* Back button */}
           <button
             onClick={() => router.back()}
-            className="absolute top-12 left-4 w-10 h-10 bg-brand-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center z-20"
+            className="absolute top-4 md:top-12 left-4 w-10 h-10 bg-brand-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center z-20"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" strokeWidth="1.5">
               <path d="M11 4L6 9l5 5" strokeLinecap="round" strokeLinejoin="round" />
@@ -79,7 +79,7 @@ export default function ExperienceDetail() {
           {/* Bookmark */}
           <button
             onClick={toggleBookmark}
-            className={`absolute top-12 right-4 w-10 h-10 bg-brand-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center z-20 transition-transform duration-150 ${
+            className={`absolute top-4 md:top-12 right-4 w-10 h-10 bg-brand-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center z-20 transition-transform duration-150 ${
               bookmarkScale ? "scale-[1.3]" : "scale-100"
             }`}
           >

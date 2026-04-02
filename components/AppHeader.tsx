@@ -10,7 +10,7 @@ export default function AppHeader({ flyBalance }: AppHeaderProps) {
   const balance = flyBalance ?? user.flyBalance;
 
   return (
-    <div className="sticky top-12 z-40 px-6 pb-4 pt-2 bg-brand-black/95 backdrop-blur-md border-b border-brand-border">
+    <div className="sticky top-0 md:top-12 z-40 px-6 pb-4 pt-2 bg-brand-black/95 backdrop-blur-md border-b border-brand-border">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[10px] uppercase tracking-[0.2em] text-brand-gray font-mono">
