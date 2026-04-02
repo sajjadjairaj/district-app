@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::selection {
+  background-color: #D95C41;
+  color: white;
+}
+
+/* Hide scrollbars globally */
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Torn receipt bottom edge */
+.receipt-bottom {
+  background-image: radial-gradient(circle at 10px 0, rgba(20, 20, 20, 0) 9px, #141414 10px);
+  background-size: 20px 10px;
+  background-repeat: repeat-x;
+  height: 10px;
+  transform: rotate(180deg);
+}
+
+/* Editorial image treatment */
+.img-editorial {
+  filter: grayscale(100%) contrast(1.1) brightness(0.9);
+  transition: filter 0.5s ease;
+}
+.group:hover .img-editorial {
+  filter: grayscale(0%) contrast(1) brightness(1);
+}
+
+/* Glass morphism nav */
+.glass-nav {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
