@@ -1,206 +1,162 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import TransitionWrapper from "@/components/TransitionWrapper";
+import { useState, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import MetaRow from "@/components/MetaRow";
+import OrbitBar from "@/components/OrbitBar";
+import ProgressLine from "@/components/ProgressLine";
 import { experiences } from "@/lib/districtData";
 
 export default function ExperienceDetail() {
   const params = useParams();
-  const router = useRouter();
   const experience = experiences.find((e) => e.id === params.id);
 
   const [booked, setBooked] = useState(false);
-  const [buttonScale, setButtonScale] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [bookmarkScale, setBookmarkScale] = useState(false);
+  const [displayBalance, setDisplayBalance] = useState(2450);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const savedItems = JSON.parse(localStorage.getItem("district-saved") || "[]");
-    setSaved(savedItems.includes(params.id));
-  }, [params.id]);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   if (!experience) {
     return (
       <div className="h-full flex items-center justify-center">
-        <p className="text-brand-gray font-mono">Experience not found</p>
+        <p className="t-label">EXPERIENCE NOT FOUND</p>
       </div>
     );
   }
 
   const handleBook = () => {
     if (booked) return;
-    setButtonScale(true);
-    setTimeout(() => setButtonScale(false), 100);
-    setTimeout(() => {
-      setBooked(true);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 2500);
-    }, 100);
-  };
+    setBooked(true);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2500);
 
-  const toggleBookmark = () => {
-    setBookmarkScale(true);
-    setTimeout(() => setBookmarkScale(false), 150);
-    const savedItems = JSON.parse(localStorage.getItem("district-saved") || "[]");
-    let next: string[];
-    if (savedItems.includes(experience.id)) {
-      next = savedItems.filter((id: string) => id !== experience.id);
-    } else {
-      next = [...savedItems, experience.id];
-    }
-    localStorage.setItem("district-saved", JSON.stringify(next));
-    setSaved(!saved);
+    // Animate balance decrement
+    const start = displayBalance;
+    const end = start - experience.priceFly;
+    const steps = 30;
+    const stepSize = (start - end) / steps;
+    let current = start;
+    let step = 0;
+    intervalRef.current = setInterval(() => {
+      step++;
+      current -= stepSize;
+      if (step >= steps) {
+        setDisplayBalance(end);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      } else {
+        setDisplayBalance(Math.round(current));
+      }
+    }, 20);
   };
 
   return (
     <div className="relative h-full flex flex-col">
-      <TransitionWrapper>
-        {/* Full-bleed image */}
-        <div className="relative h-[280px] w-full">
+      <div className="flex-1 overflow-y-auto pb-40">
+        {/* Back nav */}
+        <div className="px-4 pt-6 pb-4 border-b border-[#222]">
+          <Link href="/" className="t-brand">← DISTRICT</Link>
+        </div>
+
+        <ProgressLine />
+
+        {/* Hero image */}
+        <div className="mt-4 w-full" style={{ aspectRatio: "4/3" }}>
           <img
             src={experience.imageUrl}
             alt={experience.name}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent" />
-
-          {/* Back button */}
-          <button
-            onClick={() => router.back()}
-            className="absolute top-4 md:top-12 left-4 w-10 h-10 bg-brand-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center z-20"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" strokeWidth="1.5">
-              <path d="M11 4L6 9l5 5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-
-          {/* Bookmark */}
-          <button
-            onClick={toggleBookmark}
-            className={`absolute top-4 md:top-12 right-4 w-10 h-10 bg-brand-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center z-20 transition-transform duration-150 ${
-              bookmarkScale ? "scale-[1.3]" : "scale-100"
-            }`}
-          >
-            <svg width="14" height="16" viewBox="0 0 14 16" fill={saved ? "white" : "none"} stroke="white" strokeWidth="1.5">
-              <path d="M1 2.5A1.5 1.5 0 012.5 1h9A1.5 1.5 0 0113 2.5V15l-6-3.5L1 15V2.5z" />
-            </svg>
-          </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto no-scrollbar pb-32 -mt-8 relative z-10">
-          <div className="px-6">
-            {/* Category badge */}
-            <div className="bg-brand-card border border-brand-border font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full mb-4 inline-block">
-              {experience.categoryLabel}
-            </div>
+        {/* Info block */}
+        <div className="px-4 pt-6">
+          <p className="t-label mb-4" style={{ color: "#555" }}>{experience.categoryLabel}</p>
+          <h1 className="t-display mb-6">{experience.name}</h1>
 
-            {/* Name */}
-            <h1 className="text-[36px] font-black tracking-tight leading-tight">
-              {experience.name}
-            </h1>
-            <p className="font-mono text-xs text-brand-gray uppercase tracking-wider mt-1">
-              {experience.neighborhood} • {experience.category}
+          {/* Meta rows */}
+          <div className="border-t border-[#222]">
+            <MetaRow label="NEIGHBORHOOD" value={experience.neighborhood.toUpperCase()} />
+            <MetaRow label="CATEGORY" value={experience.category.toUpperCase()} />
+            <MetaRow label="AVAILABLE" value={experience.timeRange} />
+            <MetaRow label="CAPACITY" value={experience.capacity} />
+            <MetaRow label="PAYMENT" value="$FLY ONLY" />
+          </div>
+
+          {/* Orbit match */}
+          <div className="mt-8 mb-8">
+            <p className="t-label mb-3">YOUR ORBIT MATCH</p>
+            <OrbitBar score={experience.orbitMatchScore} />
+            <p className="t-caption mt-3 mb-4" style={{ color: "#555" }}>
+              FLYNET DINING TIER: INSIDER · NEIGHBORHOOD: CONFIRMED
             </p>
-
-            {/* Flynet Match */}
-            <div className="bg-brand-card border border-brand-border rounded-2xl p-5 my-6">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-brand-gray mb-3">
-                Why This Is For You
-              </p>
-              <div className="flex items-end gap-3 mb-3">
-                <span className="text-[48px] font-black text-brand-terracotta leading-none">
-                  {experience.orbitMatchScore}%
-                </span>
-                <span className="font-mono text-xs text-brand-gray mb-2">Orbit Match</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {experience.matchReasons.map((reason) => (
-                  <span
-                    key={reason}
-                    className="bg-brand-black border border-brand-border px-3 py-1.5 rounded-full font-mono text-[10px] text-brand-gray"
-                  >
-                    {reason}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Detail rows */}
-            <div className="flex flex-col divide-y divide-brand-border my-6">
-              {experience.detailLines.map((line, i) => (
-                <div key={i} className="flex justify-between items-center py-3">
-                  <div className="flex items-center gap-2">
-                    <i className={`ph-fill ${line.icon} text-brand-gray`} />
-                    <span className="font-mono text-xs text-brand-gray">{line.label.toUpperCase()}</span>
-                  </div>
-                  <span className="font-mono text-xs text-brand-white">{line.value}</span>
-                </div>
-              ))}
-              <div className="flex justify-between items-center py-3">
-                <div className="flex items-center gap-2">
-                  <i className="ph-fill ph-map-pin text-brand-gray" />
-                  <span className="font-mono text-xs text-brand-gray">LOCATION</span>
-                </div>
-                <span className="font-mono text-xs text-brand-white">{experience.neighborhood}, NYC</span>
-              </div>
-              <div className="flex justify-between items-center py-3">
-                <div className="flex items-center gap-2">
-                  <i className="ph-fill ph-star text-brand-gray" />
-                  <span className="font-mono text-xs text-brand-gray">ORBIT MATCH</span>
-                </div>
-                <span className="font-mono text-xs text-brand-white">{experience.orbitMatchScore}%</span>
-              </div>
-            </div>
-
-            {/* Handwritten annotation */}
-            <div className="relative my-4">
-              <span className="font-script text-brand-terracotta text-2xl -rotate-3 inline-block animate-float">
-                Worth every $FLY
-              </span>
-            </div>
-
-            {/* About */}
-            <h2 className="text-lg font-bold mb-2">About</h2>
-            <p className="text-sm text-brand-gray leading-relaxed mb-8">
-              {experience.description}
+            <p className="t-caption" style={{ color: "#555" }}>
+              {experience.matchReasons.join(" · ")}
             </p>
           </div>
+
+          {/* About */}
+          <div className="mt-8 mb-8">
+            <p className="t-label mb-3">ABOUT</p>
+            <p className="t-editorial">{experience.description}</p>
+          </div>
+
+          {/* Second image */}
+          {experience.secondImageUrl && (
+            <div className="mt-4 w-full" style={{ aspectRatio: "3/4" }}>
+              <img
+                src={experience.secondImageUrl}
+                alt={`${experience.name} detail`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
+          <div className="mb-40" />
         </div>
-      </TransitionWrapper>
+      </div>
 
-      {/* Bottom action bar */}
-      <div className="absolute bottom-0 left-0 right-0 bg-brand-black/95 backdrop-blur-md border-t border-brand-border px-6 py-4 flex justify-between items-center z-40">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-script text-brand-orange text-2xl leading-none mt-1">$FLY</span>
-            <span className="font-mono font-bold text-xl">{experience.price.toLocaleString()}</span>
+      {/* Fixed bottom action bar */}
+      <div className="fixed md:absolute bottom-0 left-0 right-0 bg-[#111111]/95 backdrop-blur-sm border-t border-[#222] px-4 py-4 z-40">
+        <div className="flex justify-between items-center mb-3">
+          <span className="t-label">PRICE PER PERSON</span>
+          <div>
+            <span className="t-fly font-bold">{experience.priceFly}</span>
+            <span className="t-caption ml-1">$FLY</span>
           </div>
-          <span className="font-mono text-[10px] text-brand-gray">per person</span>
         </div>
         <button
           onClick={handleBook}
-          className={`px-8 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${
-            buttonScale ? "scale-95" : "scale-100"
-          } ${
+          className={`w-full border border-white px-4 py-3 flex justify-between items-center transition-colors duration-100 ${
             booked
-              ? "bg-brand-terracotta text-white"
-              : "bg-brand-white text-brand-black"
+              ? "bg-white text-[#111111]"
+              : "bg-transparent text-white active:bg-white active:text-[#111111]"
           }`}
         >
-          {booked ? "Booked ✓" : experience.actionLabel}
+          <span className="t-nav">
+            {booked ? "BOOKED ✓" : `${experience.actionLabel} — ${experience.priceFly} $FLY`}
+          </span>
+          {!booked && <span className="t-value">→</span>}
         </button>
+        {/* Terracotta confirmation line */}
+        {booked && (
+          <div className="mt-2 h-[1px] bg-[#D95C41] animate-[expandWidth_600ms_ease-out_forwards]" />
+        )}
       </div>
 
       {/* Toast */}
       <div
-        className={`absolute bottom-20 left-1/2 -translate-x-1/2 bg-brand-card border border-brand-border px-6 py-3 rounded-full font-mono text-xs z-50 transition-all duration-300 ${
-          showToast ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+        className={`fixed md:absolute bottom-24 left-1/2 -translate-x-1/2 border border-[#222] bg-[#111111] t-caption px-4 py-2 z-50 transition-opacity duration-300 whitespace-nowrap ${
+          showToast ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
-        Added to your itinerary
+        ADDED TO ITINERARY
       </div>
     </div>
   );
